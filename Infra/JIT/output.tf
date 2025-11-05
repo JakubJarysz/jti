@@ -32,17 +32,6 @@ output "postgres_database_name" {
   description = "Nazwa bazy danych"
   value       = azurerm_postgresql_flexible_server_database.main.name
 }
-
-output "managed_identity_name" {
-  description = "Nazwa User-Assigned Managed Identity"
-  value       = azurerm_user_assigned_identity.app.name
-}
-
-output "managed_identity_client_id" {
-  description = "Client ID Managed Identity"
-  value       = azurerm_user_assigned_identity.app.client_id
-}
-
 output "application_insights_instrumentation_key" {
   description = "Application Insights Instrumentation Key"
   value       = azurerm_application_insights.main[0].instrumentation_key

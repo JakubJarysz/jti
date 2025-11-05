@@ -39,15 +39,6 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
   virtual_network_id    = data.azurerm_virtual_network.shr_vnet.id
 }
 
-# User-Assigned Managed Identity
-resource "azurerm_user_assigned_identity" "app" {
-  name                = "${var.app_prefix}-${var.env}-uim-1001"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  tags = var.tags
-}
-
 # Azure Container Registry
 resource "azurerm_container_registry" "main" {
   name                = "${var.app_prefix}${var.env}acr1001"
@@ -61,13 +52,6 @@ resource "azurerm_container_registry" "main" {
   }
 
   tags = var.tags
-}
-
-# Przypisanie roli AcrPull dla Managed Identity
-resource "azurerm_role_assignment" "acr_pull" {
-  scope                = azurerm_container_registry.main.id
-  role_definition_name = "AcrPull"
-  principal_id         = azurerm_user_assigned_identity.app.principal_id
 }
 
 # PostgreSQL Flexible Server
@@ -112,16 +96,6 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure" {
   end_ip_address   = "0.0.0.0"
 }
 
-# PostgreSQL AAD Administrator (Managed Identity)
-resource "azurerm_postgresql_flexible_server_active_directory_administrator" "main" {
-  server_name         = azurerm_postgresql_flexible_server.main.name
-  resource_group_name = azurerm_resource_group.main.name
-  tenant_id           = data.azurerm_client_config.current.tenant_id
-  object_id           = azurerm_user_assigned_identity.app.principal_id
-  principal_name      = azurerm_user_assigned_identity.app.name
-  principal_type      = "ServicePrincipal"
-}
-
 # App Service Plan
 resource "azurerm_service_plan" "main" {
   name                = "${var.app_prefix}-${var.env}-asp-1001"
@@ -141,8 +115,7 @@ resource "azurerm_linux_web_app" "main" {
   service_plan_id     = azurerm_service_plan.main.id
 
   identity {
-    type         = "UserAssigned"
-    identity_ids = [azurerm_user_assigned_identity.app.id]
+    type         = "SystemAssigned"
   }
 
   site_config {
@@ -154,9 +127,6 @@ resource "azurerm_linux_web_app" "main" {
     }
 
     vnet_route_all_enabled = true
-
-    container_registry_use_managed_identity       = true
-    container_registry_managed_identity_client_id = azurerm_user_assigned_identity.app.client_id
   }
 
   app_settings = {
@@ -164,10 +134,9 @@ resource "azurerm_linux_web_app" "main" {
     "WEBSITES_PORT"                       = "8000"
     "DB_HOST"                             = azurerm_postgresql_flexible_server.main.fqdn
     "DB_NAME"                             = azurerm_postgresql_flexible_server_database.main.name
-    "DB_USER"                             = azurerm_user_assigned_identity.app.name
+    "DB_USER"                             = azurerm_postgresql_flexible_server.main.administrator_login
+    "DB_PASSWORD"                         = azurerm_postgresql_flexible_server.main.administrator_password
     "DB_PORT"                             = "5432"
-    "USE_MANAGED_IDENTITY"                = "true"
-    "AZURE_CLIENT_ID"                     = azurerm_user_assigned_identity.app.client_id
     "DOCKER_REGISTRY_SERVER_URL"          = "https://${azurerm_container_registry.main.login_server}"
   }
 
