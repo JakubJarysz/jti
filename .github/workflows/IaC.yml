@@ -12,6 +12,10 @@ on:
           - uat
           - prd
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   TF_VERSION: '1.7.5'
   WORKING_DIR: './Infra'
