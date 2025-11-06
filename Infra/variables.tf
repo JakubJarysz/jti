@@ -10,13 +10,7 @@ variable "env" {
   }
 }
 
-variable "shr_resource_group_name" {
-  description = "Name of the shared Resource Group"
-  type        = string
-  default     = "shr-dev-rgp-1001"
-}
-
-variable "app_resource_group_name" {
+variable "resource_group_name" {
   description = "Name of the application Resource Group"
   type        = string
   default     = "jti-dev-rgp-1001"
@@ -28,7 +22,7 @@ variable "location" {
   default     = "westeurope"
 }
 
-variable "app_prefix" {
+variable "prefix" {
   description = "Prefix for resource naming"
   type        = string
   default     = "jti"

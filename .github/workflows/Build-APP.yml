@@ -1,0 +1,141 @@
+name: 'Build and Push Docker Image to ACR'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to build for'
+        required: true
+        type: choice
+        options:
+          - dev
+          - uat
+          - prd
+
+env:
+  DOCKER_FILE: './App/app.dockerfile'
+  DOCKER_CONTEXT: './App'
+  IMAGE_NAME: 'testapp'
+
+jobs:
+  build-and-push-dev:
+    name: 'Build and Push - DEV'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'dev'
+    environment: dev
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Login to ACR
+      run: |
+        az acr login --name ${{ secrets.ACR_NAME_DEV }}
+
+    - name: Build Docker Image
+      run: |
+        docker build \
+          -f ${{ env.DOCKER_FILE }} \
+          -t ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }} \
+          -t ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest \
+          ${{ env.DOCKER_CONTEXT }}
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }}
+        docker push ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
+
+    - name: Image Tags Summary
+      run: |
+        echo "### Docker Image Tags" >> $GITHUB_STEP_SUMMARY
+        echo "- \`${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:dev-${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- \`${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+
+  build-and-push-uat:
+    name: 'Build and Push - UAT'
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/uat' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'uat')
+    environment: uat
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get ACR Login Server
+      id: acr
+      run: |
+        ACR_LOGIN_SERVER=$(az acr list --query "[?contains(name, 'uat')].loginServer" -o tsv | head -n 1)
+        echo "login_server=$ACR_LOGIN_SERVER" >> $GITHUB_OUTPUT
+        echo "ACR Login Server: $ACR_LOGIN_SERVER"
+
+    - name: Login to ACR
+      run: |
+        az acr login --name $(echo ${{ steps.acr.outputs.login_server }} | cut -d'.' -f1)
+
+    - name: Build Docker Image
+      run: |
+        docker build \
+          -f ${{ env.DOCKER_FILE }} \
+          -t ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest \
+          ${{ env.DOCKER_CONTEXT }}
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
+
+    - name: Image Tags Summary
+      run: |
+        echo "### Docker Image Tags" >> $GITHUB_STEP_SUMMARY
+        echo "- \`${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY
+
+  build-and-push-prd:
+    name: 'Build and Push - PRD'
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'prd')
+    environment: prd
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get ACR Login Server
+      id: acr
+      run: |
+        ACR_LOGIN_SERVER=$(az acr list --query "[?contains(name, 'prd') || contains(name, 'prod')].loginServer" -o tsv | head -n 1)
+        echo "login_server=$ACR_LOGIN_SERVER" >> $GITHUB_OUTPUT
+        echo "ACR Login Server: $ACR_LOGIN_SERVER"
+
+    - name: Login to ACR
+      run: |
+        az acr login --name $(echo ${{ steps.acr.outputs.login_server }} | cut -d'.' -f1)
+
+    - name: Build Docker Image
+      run: |
+        docker build \
+          -f ${{ env.DOCKER_FILE }} \
+          -t ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest \
+          ${{ env.DOCKER_CONTEXT }}
+
+    - name: Push Docker Image
+      run: |
+        docker push ${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest
+
+    - name: Image Tags Summary
+      run: |
+        echo "### Docker Image Tags" >> $GITHUB_STEP_SUMMARY
+        echo "- \`${{ steps.acr.outputs.login_server }}/${{ env.IMAGE_NAME }}:latest\`" >> $GITHUB_STEP_SUMMARY

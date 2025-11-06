@@ -6,7 +6,7 @@ terraform {
     }
     azuread = {
       source  = "hashicorp/azuread"
-      version = "~>2.47.0"
+      version = "~>3.6.0"
     }
   }
 }
@@ -21,6 +21,7 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
+  subscription_id = "eef9cd59-2134-45a5-87f5-4e36a4a7eb80"
 }
 
 provider "azuread" {

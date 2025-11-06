@@ -1,0 +1,310 @@
+name: 'Terraform Azure IaC Pipeline'
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - uat
+          - prd
+
+env:
+  TF_VERSION: '4.51.0'
+  WORKING_DIR: './Infra'
+  TFVARS_DIR: './Infra/jit'
+
+jobs:
+  terraform-validate:
+    name: 'Terraform Validate'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Terraform Format Check
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform fmt -check -recursive
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init -backend=false
+
+    - name: Terraform Validate
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform validate
+
+  # DEV Environment
+  terraform-plan-dev:
+    name: 'Terraform Plan - DEV'
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Plan
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform plan -var-file="${{ env.TFVARS_DIR }}/dev.tfvars" -out=tfplan-dev
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Upload Plan
+      uses: actions/upload-artifact@v3
+      with:
+        name: tfplan-dev
+        path: ${{ env.WORKING_DIR }}/tfplan-dev
+
+  terraform-apply-dev:
+    name: 'Terraform Apply - DEV'
+    runs-on: ubuntu-latest
+    needs: terraform-plan-dev
+    environment: dev
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Download Plan
+      uses: actions/download-artifact@v3
+      with:
+        name: tfplan-dev
+        path: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Apply
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform apply tfplan-dev
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  # UAT Environment
+  terraform-plan-uat:
+    name: 'Terraform Plan - UAT'
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Plan
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform plan -var-file="${{ env.TFVARS_DIR }}/uat.tfvars" -out=tfplan-uat
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Upload Plan
+      uses: actions/upload-artifact@v3
+      with:
+        name: tfplan-uat
+        path: ${{ env.WORKING_DIR }}/tfplan-uat
+
+  terraform-apply-uat:
+    name: 'Terraform Apply - UAT'
+    runs-on: ubuntu-latest
+    needs: terraform-plan-uat
+    if: github.ref == 'refs/heads/uat' && github.event_name == 'push'
+    environment: uat
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Download Plan
+      uses: actions/download-artifact@v3
+      with:
+        name: tfplan-uat
+        path: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Apply
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform apply tfplan-uat
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+  # PRD Environment
+  terraform-plan-prd:
+    name: 'Terraform Plan - PRD'
+    runs-on: ubuntu-latest
+    needs: terraform-validate
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Plan
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform plan -var-file="${{ env.TFVARS_DIR }}/prd.tfvars" -out=tfplan-prd
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Upload Plan
+      uses: actions/upload-artifact@v3
+      with:
+        name: tfplan-prd
+        path: ${{ env.WORKING_DIR }}/tfplan-prd
+
+  terraform-apply-prd:
+    name: 'Terraform Apply - PRD'
+    runs-on: ubuntu-latest
+    needs: terraform-plan-prd
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: prd
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: ${{ env.TF_VERSION }}
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Download Plan
+      uses: actions/download-artifact@v3
+      with:
+        name: tfplan-prd
+        path: ${{ env.WORKING_DIR }}
+
+    - name: Terraform Init
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform init
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
+
+    - name: Terraform Apply
+      working-directory: ${{ env.WORKING_DIR }}
+      run: terraform apply tfplan-prd
+      env:
+        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
+        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
