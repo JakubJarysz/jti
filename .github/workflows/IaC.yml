@@ -13,7 +13,6 @@ on:
           - prd
 
 permissions:
-  id-token: write
   contents: read
 
 env:
