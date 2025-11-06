@@ -48,7 +48,12 @@ jobs:
     name: 'Terraform Plan - DEV'
     runs-on: ubuntu-latest
     needs: terraform-validate
-    
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -66,20 +71,10 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform plan -var-file="${{ env.TFVARS_DIR }}/dev.tfvars" -out=tfplan-dev
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Upload Plan
       uses: actions/upload-artifact@v4
@@ -92,7 +87,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: terraform-plan-dev
     environment: dev
-    
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -116,27 +116,21 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform apply tfplan-dev
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   # UAT Environment
   terraform-plan-uat:
     name: 'Terraform Plan - UAT'
     runs-on: ubuntu-latest
-    needs: terraform-validate
-    
+    needs: terraform-validate  
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -154,20 +148,10 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform plan -var-file="${{ env.TFVARS_DIR }}/uat.tfvars" -out=tfplan-uat
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Upload Plan
       uses: actions/upload-artifact@v4
@@ -181,7 +165,12 @@ jobs:
     needs: terraform-plan-uat
     if: github.ref == 'refs/heads/uat' && github.event_name == 'push'
     environment: uat
-    
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -205,27 +194,22 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform apply tfplan-uat
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
   # PRD Environment
   terraform-plan-prd:
     name: 'Terraform Plan - PRD'
     runs-on: ubuntu-latest
     needs: terraform-validate
-    
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -243,20 +227,10 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Terraform Plan
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform plan -var-file="${{ env.TFVARS_DIR }}/prd.tfvars" -out=tfplan-prd
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
 
     - name: Upload Plan
       uses: actions/upload-artifact@v4
@@ -270,7 +244,12 @@ jobs:
     needs: terraform-plan-prd
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: prd
-    
+    env:
+        ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
+        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
+        ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
+        ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -294,17 +273,6 @@ jobs:
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
-
     - name: Terraform Apply
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform apply tfplan-prd
-      env:
-        ARM_CLIENT_ID: ${{ secrets.ARM_CLIENT_ID }}
-        ARM_CLIENT_SECRET: ${{ secrets.ARM_CLIENT_SECRET }}
-        ARM_SUBSCRIPTION_ID: ${{ secrets.ARM_SUBSCRIPTION_ID }}
-        ARM_TENANT_ID: ${{ secrets.ARM_TENANT_ID }}
