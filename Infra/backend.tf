@@ -1,11 +1,11 @@
- terraform {
-   backend "azurerm" {
-     resource_group_name  = "jti-dev-rgp-1001"
-     storage_account_name = "jtidevsto1001"
-     container_name       = "tfstate"
-     key                  = "jit.terraform.tfstate"
-   }
- }
+terraform {
+  backend "azurerm" {
+    resource_group_name  = "jti-dev-rgp-1001"
+    storage_account_name = "jtidevsto1001"
+    container_name       = "tfstate"
+    key                  = "jit.terraform.tfstate"
+  }
+}
 
 # Aby utworzyć backend storage account, uruchom:
 # 

@@ -22,12 +22,12 @@ resource "azurerm_subnet" "main_app" {
 
 # Create a subnet for PostgreSQL
 resource "azurerm_subnet" "main_db" {
-  name                 = "${var.prefix}-${var.env}-db-subnet"
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.2.0/24"]
+  name                              = "${var.prefix}-${var.env}-db-subnet"
+  resource_group_name               = azurerm_resource_group.main.name
+  virtual_network_name              = azurerm_virtual_network.main.name
+  address_prefixes                  = ["10.0.2.0/24"]
   private_endpoint_network_policies = "Enabled"
-  service_endpoints = ["Microsoft.Sql"]
+  service_endpoints                 = ["Microsoft.Sql"]
 }
 
 # Private DNS Zone dla PostgreSQL
@@ -49,7 +49,7 @@ resource "azurerm_network_security_group" "main" {
     protocol                   = "Tcp"
     source_port_range          = "*"
     destination_port_range     = "5432"
-    source_address_prefix      = "0.0.0.0/0"  
+    source_address_prefix      = "0.0.0.0/0"
     destination_address_prefix = "*"
   }
   security_rule {
@@ -80,20 +80,20 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
 
 # PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "main" {
-  name                   = "${var.prefix}-${var.env}-postgres-1002"
-  resource_group_name    = azurerm_resource_group.main.name
-  location               = azurerm_resource_group.main.location
-  version                = "16"
-  sku_name               = "B_Standard_B1ms" 
-  zone                   = 3 
-  administrator_login    = "psqladmin"
-  administrator_password = "VeryDifficullPassword"
+  name                          = "${var.prefix}-${var.env}-postgres-1002"
+  resource_group_name           = azurerm_resource_group.main.name
+  location                      = azurerm_resource_group.main.location
+  version                       = "16"
+  sku_name                      = "B_Standard_B1ms"
+  zone                          = 3
+  administrator_login           = "psqladmin"
+  administrator_password        = "VeryDifficullPassword"
   public_network_access_enabled = false
-  storage_mb   = 32768
-  storage_tier = "P4"
-  
+  storage_mb                    = 32768
+  storage_tier                  = "P4"
+
   depends_on = [azurerm_private_dns_zone_virtual_network_link.postgres]
-  tags = var.tags
+  tags       = var.tags
 }
 
 //PostgresSQL Private Endpoint
@@ -138,7 +138,7 @@ resource "azurerm_container_registry" "main" {
   location            = azurerm_resource_group.main.location
   sku                 = "Premium"
   admin_enabled       = true
-  tags = var.tags
+  tags                = var.tags
 }
 
 # App Service Plan
@@ -148,7 +148,7 @@ resource "azurerm_service_plan" "main" {
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
   sku_name            = "F1"
-  tags = var.tags
+  tags                = var.tags
 }
 
 # Linux Web App
@@ -158,7 +158,7 @@ resource "azurerm_linux_web_app" "main" {
   location            = azurerm_resource_group.main.location
   service_plan_id     = azurerm_service_plan.main.id
   identity {
-    type         = "SystemAssigned"
+    type = "SystemAssigned"
   }
   site_config {
     always_on = false
@@ -197,7 +197,7 @@ resource "azurerm_log_analytics_workspace" "main" {
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "PerGB2018"
   retention_in_days   = 30
-  tags = var.tags
+  tags                = var.tags
 }
 
 # Application Insights
@@ -207,7 +207,7 @@ resource "azurerm_application_insights" "main" {
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   workspace_id        = azurerm_log_analytics_workspace.main[0].id
-  retention_in_days = 30
+  retention_in_days   = 30
   application_type    = "web"
-  tags = var.tags
+  tags                = var.tags
 }

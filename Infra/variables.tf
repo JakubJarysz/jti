@@ -2,7 +2,7 @@ variable "env" {
   description = "Environment name (dev, prod, etc.)"
   type        = string
   default     = "dev"
-  
+
   # Optional: Add validation for allowed environments
   validation {
     condition     = contains(["dev", "test", "prod"], var.env)
