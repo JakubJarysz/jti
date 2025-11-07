@@ -53,9 +53,9 @@ jobs:
     needs: terraform-validate
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
+
 
     steps:
     - name: Checkout
@@ -69,8 +69,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
@@ -92,7 +93,6 @@ jobs:
     environment: dev
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
 
@@ -108,8 +108,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Download Plan
       uses: actions/download-artifact@v4
       with:
@@ -131,7 +132,6 @@ jobs:
     needs: terraform-validate  
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
     steps:
@@ -146,8 +146,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
@@ -170,7 +171,6 @@ jobs:
     environment: uat
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
 
@@ -186,8 +186,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Download Plan
       uses: actions/download-artifact@v4
       with:
@@ -209,7 +210,6 @@ jobs:
     needs: terraform-validate
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
 
@@ -225,8 +225,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
       run: terraform init
@@ -249,7 +250,6 @@ jobs:
     environment: prd
     env:
         ARM_CLIENT_ID: ${{ secrets.CLIENTID }}
-        ARM_CLIENT_SECRET: ${{ secrets.CLIENTSECRET }}
         ARM_SUBSCRIPTION_ID: ${{ secrets.SUBSCRIPTIONID }}
         ARM_TENANT_ID: ${{ secrets.TENANTID }}
 
@@ -265,8 +265,9 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
-
+        client-id: ${{ secrets.CLIENTID }}
+        tenant-id: ${{ secrets.TENANTID }}
+        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
     - name: Download Plan
       uses: actions/download-artifact@v4
       with:
