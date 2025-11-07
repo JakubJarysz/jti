@@ -4,6 +4,10 @@ on: [push]
 
 name: Run Azure Login With a Service Principal Secret
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
 
   build-and-deploy:
