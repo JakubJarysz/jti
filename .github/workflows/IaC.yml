@@ -13,7 +13,6 @@ on:
           - prd
 
 permissions:
-  id-token: write
   contents: read
 
 env:
@@ -70,11 +69,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
@@ -113,11 +108,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Download Plan
       uses: actions/download-artifact@v4
@@ -155,11 +146,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
@@ -199,11 +186,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Download Plan
       uses: actions/download-artifact@v4
@@ -242,11 +225,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Terraform Init
       working-directory: ${{ env.WORKING_DIR }}
@@ -286,11 +265,7 @@ jobs:
     - name: Azure Login
       uses: azure/login@v2
       with:
-        auth-type: SERVICE_PRINCIPAL
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
-        client-secret: ${{ secrets.CLIENTSECRET }}
+        creds: '{"clientId":"${{ secrets.CLIENTID }}","clientSecret":"${{ secrets.CLIENTSECRET }}","subscriptionId":"${{ secrets.SUBSCRIPTIONID }}","tenantId":"${{ secrets.TENANTID }}"}'
 
     - name: Download Plan
       uses: actions/download-artifact@v4
