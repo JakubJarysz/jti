@@ -2,21 +2,15 @@ name: 'Terraform Azure IaC Pipeline'
 
 on:
   workflow_dispatch:
-    # inputs:
-    #   environment:
-    #     description: 'Environment to deploy'
-    #     required: true
-    #     type: choice
-    #     options:
-    #       - dev
-    #       - uat
-    #       - prd
-
-permissions:
-  id-token: write
-  contents: read
-
-
+     inputs:
+       environment:
+         description: 'Environment to deploy'
+         required: true
+         type: choice
+         options:
+           - dev
+           - uat
+           - prd
 env:
   TF_VERSION: '1.7.5'
   WORKING_DIR: './Infra'

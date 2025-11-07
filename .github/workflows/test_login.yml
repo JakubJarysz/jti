@@ -12,6 +12,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
+
+    - name: Azure CLI Login (Service Principal)
+      run: az login --service-principal \
+          -u ${{ secrets.AZURE_CLIENT_ID }} \
+          -p ${{ secrets.AZURE_CLIENT_SECRET }} \
+          --tenant ${{ secrets.AZURE_TENANT_ID }}
+
+
     - name: Azure CLI Login
       uses: azure/login@v2
       with:
