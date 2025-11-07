@@ -28,12 +28,10 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Azure Login
+    - name: Azure CLI Login
       uses: azure/login@v2
       with:
-        client-id: ${{ secrets.CLIENTID }}
-        tenant-id: ${{ secrets.TENANTID }}
-        subscription-id: ${{ secrets.SUBSCRIPTIONID }}
+        creds: ${{ secrets.AZURE_CREDENTIALS }}  
 
     - name: Login to ACR
       run: |
