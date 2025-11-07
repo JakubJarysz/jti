@@ -6,7 +6,7 @@ resource "azurerm_resource_group" "main" {
 
 # Create a virtual network within the resource group
 resource "azurerm_virtual_network" "main" {
-  name                = "${var.prefix}-${var.env}-net-1002"
+  name                = "${var.prefix}-${var.env}-net"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   address_space       = ["10.0.0.0/16"]
@@ -80,7 +80,7 @@ resource "azurerm_private_dns_zone_virtual_network_link" "postgres" {
 
 # PostgreSQL Flexible Server
 resource "azurerm_postgresql_flexible_server" "main" {
-  name                          = "${var.prefix}-${var.env}-postgres-1002"
+  name                          = "${var.prefix}-${var.env}-postgres"
   resource_group_name           = azurerm_resource_group.main.name
   location                      = azurerm_resource_group.main.location
   version                       = "16"
@@ -98,12 +98,12 @@ resource "azurerm_postgresql_flexible_server" "main" {
 
 //PostgresSQL Private Endpoint
 resource "azurerm_private_endpoint" "main" {
-  name                = "${var.prefix}-${var.env}-pep-1002-postgresql"
+  name                = "${var.prefix}-${var.env}-pep-postgresql"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   subnet_id           = azurerm_subnet.main_db.id
   private_service_connection {
-    name                           = "${var.prefix}-${var.env}-pep-1002-postgresql"
+    name                           = "${var.prefix}-${var.env}-pep-postgresql"
     private_connection_resource_id = azurerm_postgresql_flexible_server.main.id
     subresource_names              = ["postgresqlServer"]
     is_manual_connection           = false
@@ -133,7 +133,7 @@ resource "azurerm_postgresql_flexible_server_firewall_rule" "allow_azure" {
 
 # Azure Container Registry
 resource "azurerm_container_registry" "main" {
-  name                = "${var.prefix}${var.env}acr1002"
+  name                = "${var.prefix}${var.env}acr"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   sku                 = "Premium"
@@ -143,7 +143,7 @@ resource "azurerm_container_registry" "main" {
 
 # App Service Plan
 resource "azurerm_service_plan" "main" {
-  name                = "${var.prefix}-${var.env}-asp-1002"
+  name                = "${var.prefix}-${var.env}-asp"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   os_type             = "Linux"
@@ -153,7 +153,7 @@ resource "azurerm_service_plan" "main" {
 
 # Linux Web App
 resource "azurerm_linux_web_app" "main" {
-  name                = "${var.prefix}-${var.env}-app-1002"
+  name                = "${var.prefix}-${var.env}-app"
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   service_plan_id     = azurerm_service_plan.main.id
@@ -192,7 +192,7 @@ resource "azurerm_linux_web_app" "main" {
 # Log Analytics Workspace
 resource "azurerm_log_analytics_workspace" "main" {
   count               = 1
-  name                = "${var.prefix}-${var.env}-log-1002"
+  name                = "${var.prefix}-${var.env}-log"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   sku                 = "PerGB2018"
@@ -203,7 +203,7 @@ resource "azurerm_log_analytics_workspace" "main" {
 # Application Insights
 resource "azurerm_application_insights" "main" {
   count               = 1
-  name                = "${var.prefix}-${var.env}-ain-1002"
+  name                = "${var.prefix}-${var.env}-ain"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
   workspace_id        = azurerm_log_analytics_workspace.main[0].id
