@@ -4,10 +4,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = "=4.51.0"
     }
-    azuread = {
-      source  = "hashicorp/azuread"
-      version = "~>3.6.0"
-    }
   }
 }
 
@@ -21,15 +17,4 @@ provider "azurerm" {
       prevent_deletion_if_contains_resources = false
     }
   }
-  subscription_id = "eef9cd59-2134-45a5-87f5-4e36a4a7eb80"
 }
-
-provider "azuread" {
-  # Configuration options
-}
-
-# Data source for current Azure subscription
-data "azurerm_subscription" "current" {}
-
-# Data source for current Azure client configuration
-data "azurerm_client_config" "current" {}
